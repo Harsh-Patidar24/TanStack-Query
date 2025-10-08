@@ -1,0 +1,90 @@
+import { Server } from "socket.io";
+import express from "express";
+// import uploadRouter from "./routes/upload"
+import authRoutes from "./routes/authRoute"
+import connectDB from "./config/db"
+import cors from "cors";
+import dotenv from "dotenv"
+import protectedRoutes from "./routes/protected"
+import { authenticationToken } from "./middleware/authMiddleware"
+
+dotenv.config();
+connectDB();
+
+const app = express();
+const PORT = process.env.PORT || 3500;
+
+app.use(cors({ origin: "http://localhost:5173" }));
+app.use(express.json());
+
+// Routes
+app.use("/api/auth", authRoutes);
+app.use("/api/protected", protectedRoutes);
+// app.get("/api/protected", authenticationToken, (req, res) => {
+//   const user = (req as any).user;
+//   res.send(`Welcome ${user.userName}, you accessed a protected route!`);
+// });
+
+app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// const io = new Server(expressServer, {
+//     cors: {
+//         origin:
+//             process.env.NODE_ENV === "production"
+//                 ? false
+//                 : ["http://localhost:5173", "http://127.0.0.1:5173"],
+//     },
+// });
+
+// const rooms: Record<string, string[]> = {};
+
+// io.on("connection", (socket) => {
+//     console.log(`User ${socket.id} connected`);
+
+//     // Join a room
+//     socket.on("joinRoom", (roomName: string) => {
+//         socket.join(roomName);
+//         if (!rooms[roomName]) rooms[roomName] = [];
+//         if (!rooms[roomName].includes(socket.id)) rooms[roomName].push(socket.id);
+
+//         io.to(roomName).emit("message", `${socket.id.substring(0, 5)} joined the room`);
+//     });
+
+//     // Leave a room
+//     socket.on("leaveRoom", (roomName: string) => {
+//         socket.leave(roomName);
+//         console.log(`User ${socket.id} has leave this ${roomName} room`);
+//         if (rooms[roomName]) {
+//             rooms[roomName] = rooms[roomName].filter((id) => id !== socket.id);
+//         }
+//         io.to(roomName).emit("message", `${socket.id.substring(0, 5)} left the room`);
+//     });
+
+//     // Message in room
+//     socket.on("message", ({ roomName, message }: { roomName: string; message: string }) => {
+//         if (!roomName || !message) return;
+//         io.to(roomName).emit("message", `${socket.id.substring(0, 5)}: ${message}`);
+//     });
+
+//     socket.on("disconnect", () => {
+//         console.log(`User ${socket.id} disconnected`);
+//         // Remove from all rooms
+//         for (const room in rooms) {
+//             rooms[room] = rooms[room].filter((id) => id !== socket.id);
+//             io.to(room).emit("message", `${socket.id.substring(0, 5)} left the room`);
+//         }
+//     });
+// });
