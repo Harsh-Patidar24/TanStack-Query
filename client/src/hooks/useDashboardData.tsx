@@ -14,7 +14,7 @@ export const useDashboardData = () => {
       });
       return res.data;
     },
-    enabled: !!token, 
+    enabled: !!token,
   });
 
   return query;

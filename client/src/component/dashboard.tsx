@@ -1,44 +1,20 @@
-import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { rawData } from "../data/raw";
 
-function dashboard() {
-  const [loading, setLoading] = useState(true);
-  const [user, setUser] = useState<any>(null);
-  const navigate = useNavigate();
+const Dashboard = () => {
+  return (
+    <div style={{ display: "grid", flexWrap: "wrap", gap: "10px" }}>
+      {rawData.map((item) => (
+        <div
+          key={item.id}
+          style={{ border: "1px solid #ccc", padding: "10px" }}
+        >
+          <p>ID: {item.id}</p>
+          <p>Name: {item.name}</p>
+          <p>Email: {item.email}</p>
+        </div>
+      ))}
+    </div>
+  );
+};
 
-  useEffect(() => {
-    const verifyToken = async () => {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        navigate("/");
-        return;
-      }
-      try {
-        const response = await fetch("http://localhost:3500/api/protected", {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        if(!response.ok){
-          localStorage.removeItem("token");
-          navigate("/");
-          return;
-        }
-
-        const data = await response.json();
-        setUser(data.user);
-        setLoading(false);
-      } catch (error) {
-        console.error(error);
-        navigate("/");
-      }
-    };
-    verifyToken();
-  },[]);
-  if(loading) return <div>loading......</div>
-
-  return <div>dashboard</div>;
-}
-
-export default dashboard;
+export default Dashboard;

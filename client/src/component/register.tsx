@@ -1,49 +1,23 @@
-import { useState } from "react";
+import React, { useState } from "react";
+import { useAuth } from "../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 
-const API_URL = "http://localhost:3500/api/auth";
+interface Props {
+  showLogin?: () => void; // callback to switch to Login
+}
 
-const RegisterForm = () => {
+const RegisterForm = ({ showLogin }: Props) => {
+  const { register, registerLoading } = useAuth();
   const [userName, setUserName] = useState("");
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [role, setRole] = useState("user");
+  const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
-
   const navigate = useNavigate();
 
-  const handleRegister = async (e: React.FormEvent) => {
-    e.preventDefault(); // prevent form reload
-
-    if (!userName || !email || !password) {
-      setMessage("All fields are required.");
-      return;
-    }
-
-    try {
-      const res = await fetch(`${API_URL}/register`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ userName, email, role, password }),
-      });
-
-      const data = await res.json();
-      console.log("response", data);
-
-      // ✅ Save token if backend returns it (you can modify backend to send one)
-      if (data.token) {
-        localStorage.setItem("token", data.token);
-        // setMessage("Registration successful! Token saved.");
-      } else {
-        setMessage(data.message || "User registered successfully.");
-      }
-      navigate("/login");
-    } catch (err) {
-      console.error(err);
-      setMessage("Registration failed. Try again.");
-    }
+  const handleRegister = (e: React.FormEvent) => {
+    e.preventDefault();
+    register({ userName, email, role, password });
   };
 
   return (
@@ -56,6 +30,7 @@ const RegisterForm = () => {
           type="text"
           value={userName}
           onChange={(e) => setUserName(e.target.value)}
+          disabled={registerLoading}
         />
       </div>
 
@@ -65,6 +40,7 @@ const RegisterForm = () => {
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
+          disabled={registerLoading}
         />
       </div>
 
@@ -74,6 +50,7 @@ const RegisterForm = () => {
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+          disabled={registerLoading}
         />
       </div>
 
@@ -83,10 +60,31 @@ const RegisterForm = () => {
           type="text"
           value={role}
           onChange={(e) => setRole(e.target.value)}
+          disabled={registerLoading}
         />
       </div>
 
-      <button type="submit">Register</button>
+      <button type="submit" disabled={registerLoading}>
+        {registerLoading ? "Registering..." : "Register"}
+      </button>
+
+      <p style={{ marginTop: "10px" }}>
+        Already have an account?{" "}
+        <button
+          type="button"
+          onClick={showLogin || (() => navigate("/login"))}
+          style={{
+            color: "blue",
+            border: "none",
+            background: "none",
+            cursor: "pointer",
+            textDecoration: "underline",
+          }}
+        >
+          Login here
+        </button>
+      </p>
+
       <p>{message}</p>
     </form>
   );

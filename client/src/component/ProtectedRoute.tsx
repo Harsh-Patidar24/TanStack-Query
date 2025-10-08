@@ -1,19 +1,42 @@
-import React, { type JSX } from "react";
+import { useEffect, useState, type JSX } from "react";
 import { Navigate } from "react-router-dom";
+import api from "../api/axios";
 
 interface ProtectedProps {
   children: JSX.Element;
 }
 
 const ProtectedRoute = ({ children }: ProtectedProps) => {
-  const token = localStorage.getItem("token");
+  const [loading, setLoading] = useState(true);
+  const [isAuth, setIsAuth] = useState(false);
 
-  if (!token) {
-    // User is not logged in, redirect to home
-    return <Navigate to="/" replace />;
-  }
+  useEffect(() => {
+    const verifyToken = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        setLoading(false);
+        setIsAuth(false);
+        return;
+      }
 
-  // User is logged in, allow access
+      try {
+        const response = await api.get("/api/protected", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setIsAuth(response.data.ok); // backend verifies token
+      } catch (err) {
+        setIsAuth(false);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    verifyToken();
+  }, []);
+
+  if (loading) return <div>Loading...</div>;
+  if (!isAuth) return <Navigate to="/" replace />;
+
   return children;
 };
 
