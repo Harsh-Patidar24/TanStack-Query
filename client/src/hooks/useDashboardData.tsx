@@ -7,7 +7,7 @@ export const useDashboardData = () => {
   const query = useQuery({
     queryKey: ["dashboardData"],
     queryFn: async () => {
-      const res = await api.get("/api/protected/rawdata", {
+      const res = await api.get("/api/protected", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
